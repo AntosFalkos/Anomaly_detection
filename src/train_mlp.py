@@ -11,8 +11,8 @@ from tensorflow.keras.optimizers import Adam
 
 # ---------- CONFIGURATION ----------
 SEED = 42
-DATA_PATH = "../data/synthetic_anomalies_data.csv"
-IMAGES_DIR = "../images"
+DATA_PATH = "data/synthetic_anomalies_data.csv"
+IMAGES_DIR = "images"
 ENC = "utf-8-sig"
 
 def main():
@@ -29,9 +29,10 @@ def main():
     columns_to_drop = ['Data_kontroli', 'poczatek_okresu', 'ID obiektu']
     df = df.drop(columns=[col for col in columns_to_drop if col in df.columns])
 
-    df['Fraud'] = pd.to_numeric(df['Fraud'], errors='coerce').fillna(0).astype(int)
-    X = df.drop(columns=['Fraud'])
-    y = df['Fraud']
+    
+    df['is_anomaly'] = pd.to_numeric(df['is_anomaly'], errors='coerce').fillna(0).astype(int)
+    X = df.drop(columns=['is_anomaly'])
+    y = df['is_anomaly']
 
     # 2. Train/Test Split
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_state=SEED)

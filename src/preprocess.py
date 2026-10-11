@@ -154,7 +154,33 @@ def generate_business_features(df_visits, df_controls):
 
         results.append(wynik)
 
-    return pd.DataFrame(results)
+    return pd.DataFrame(results).fillna(0)
 
 if __name__ == "__main__":
-    print("Preprocessing module ready.")
+    print("Inicjalizacja preprocessingu...")
+    import os
+    
+    # Ścieżki z perspektywy głównego folderu projektu
+    controls_path = 'data/df_controls.csv'
+    visits_path = 'data/df_visits.csv'
+    output_path = 'data/synthetic_anomalies_data.csv'
+    
+    if not os.path.exists(controls_path) or not os.path.exists(visits_path):
+        print("Błąd: Brak surowych danych w folderze 'data/'. Uruchom najpierw generate_mock_data.py")
+        exit(1)
+        
+    print("Wczytywanie surowych danych mockowych...")
+    # Parsowanie dat jest krytyczne dla Twojej logiki okien czasowych
+    df_controls = pd.read_csv(controls_path, parse_dates=['Data_kontroli', 'poczatek_okresu'])
+    df_visits = pd.read_csv(visits_path, parse_dates=['dzien_wizyty'])
+    
+    print("Generowanie cech biznesowych (może potrwać chwilę)...")
+    df_processed = generate_business_features(df_visits, df_controls)
+    
+    # Złączenie z etykietami anomalii (is_anomaly), które wygenerował mock
+    df_labels = df_controls[['ID obiektu', 'is_anomaly']]
+    df_final = pd.merge(df_processed, df_labels, on='ID obiektu', how='left')
+    
+    # Zapis do pliku oczekiwanego przez modele ML
+    df_final.to_csv(output_path, index=False)
+    print(f"Sukces: Zapisano przetworzony zbiór ({df_final.shape[0]} wierszy) do {output_path}")

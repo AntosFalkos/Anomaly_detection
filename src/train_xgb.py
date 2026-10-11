@@ -13,8 +13,8 @@ import xgboost as xgb
 
 # ---------- CONFIGURATION ----------
 SEED = 42
-DATA_PATH = "../data/synthetic_anomalies_data.csv"
-IMAGES_DIR = "../images"
+DATA_PATH = "data/synthetic_anomalies_data.csv"
+IMAGES_DIR = "images"  # POPRAWKA: Zapis wewnątrz głównego katalogu projektu
 ENC = "utf-8-sig"
 
 # XGBoost Tuning params
@@ -56,9 +56,10 @@ def main():
     columns_to_drop = ['Data_kontroli', 'poczatek_okresu', 'ID obiektu']
     df = df.drop(columns=[col for col in columns_to_drop if col in df.columns])
 
-    df['Fraud'] = pd.to_numeric(df['Fraud'], errors='coerce').fillna(0).astype(int)
-    X = df.drop(columns=['Fraud'])
-    y = df['Fraud']
+    # POPRAWKA: Zmiana 'Fraud' na 'is_anomaly' w celu integracji z preprocess.py
+    df['is_anomaly'] = pd.to_numeric(df['is_anomaly'], errors='coerce').fillna(0).astype(int)
+    X = df.drop(columns=['is_anomaly'])
+    y = df['is_anomaly']
 
     # 2. Train/Test Split
     X_train, X_test, y_train, y_test = train_test_split(
